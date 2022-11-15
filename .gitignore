@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/.vs/LovelyLittleVirus
+*.filters
+*.user
+/main/x64/Debug
