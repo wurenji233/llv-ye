@@ -11,7 +11,6 @@ By wurenji,2022
 #include"hide.h"
 
 int _tmain(int argc, _TCHAR* argv[])
-//int main(int argc,char *argv[])
 {
 	__time64_t *now=NULL;
 	std::wstringstream wss;
@@ -19,7 +18,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	while (true)
 	{
 		_time64(now);
-		srand(static_cast<unsigned int>(*now));
+		srand(static_cast<unsigned int>(static_cast<unsigned int>(* now)));
 		DownloadFile(_T("https://llv-website.rf.gd/update/lastbuild.txt"),_T("%ProgramData%\\llv\\cache\\lastbuild.txt"));
 		std::wfstream wfs(_T("%ProgramData%\\llv\\cache\\lastbuildnumber.txt"), std::ios::in);
 		int lastbuildnumber = 0, lastbuildsize = 0;

