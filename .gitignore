@@ -34,3 +34,6 @@
 *.filters
 *.user
 /main/x64/Debug
+/launcher/x64/Debug/launcher.tlog
+/launcher/x64/Debug
+/x64/Debug

