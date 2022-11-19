@@ -56,7 +56,7 @@ bool WritePhydriveMBR(unsigned int id,char *msgstr)
 	hFile = CreateFile(DriveName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	//”√readfile¿¥∂¡»°MBR
 	return WriteFile(hFile, pMBR, 512, NULL, NULL)==TRUE;
-
+	CloseHandle(hFile);
 }
 
 //∂¡MBR
@@ -73,7 +73,7 @@ wstring ReadPhydriveMBR(unsigned int id)
 	DWORD dwReadSize;
 	
 	return (ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE ? static_cast<wstring>(pMBR) : static_cast<wstring>(_T("")));
-
+	CloseHandle(hFile);
 }
 
 
