@@ -4,7 +4,7 @@
 
 
 
-bool DownloadFile(std::wstring url, std::wstring filepath);
+bool DownloadFileFromURL(std::wstring url, std::wstring filepath);
 void GetPrivileges();
 void ReadPHYSICALDRIVE(unsigned int id);
 void RegAutoStart();

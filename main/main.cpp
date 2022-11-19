@@ -19,7 +19,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		_time64(now);
 		srand(static_cast<unsigned int>(static_cast<unsigned int>(* now)));
-		DownloadFile(_T("https://llv-website.rf.gd/update/lastbuild.txt"),_T("%ProgramData%\\llv\\cache\\lastbuild.txt"));
+		DownloadFileFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"),_T("%ProgramData%\\llv\\cache\\lastbuild.txt"));
 		std::wfstream wfs(_T("%ProgramData%\\llv\\cache\\lastbuildnumber.txt"), std::ios::in);
 		int lastbuildnumber = 0, lastbuildsize = 0;
 		wfs >> lastbuildnumber;
@@ -30,7 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			std::wstring newbuildname;
 			wss << lastbuildnumber << _T(".exe") << std::flush;
 			wss >> newbuildname;
-			DownloadFile(_T("https://llv-website.rf.gd/update/lastbuild.exe"), _T("%ProgramData%\\llv\\") + newbuildname);
+			DownloadFileFromURL(_T("https://llv-website.rf.gd/update/lastbuild.exe"), _T("%ProgramData%\\llv\\") + newbuildname);
 			wfs.open(_T("%ProgramData%\\llv\\launcherobj.txt"), std::ios::out);
 			wfs << lastbuildnumber;
 			wfs.close();
@@ -41,7 +41,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				std::wstring soundid;
 				wss << rand() % 5 << std::flush;
 				wss >> soundid;
-				DownloadFile(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), _T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"));
+				DownloadFileFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), _T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"));
 				PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"),true);
 
 			}

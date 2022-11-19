@@ -1,9 +1,14 @@
 #include"std.h"
 
 
-bool DownloadFile(std::wstring url, std::wstring filepath)
+bool DownloadFileFromURL(std::wstring url, std::wstring filepath)
 {
-	URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL);
-//    return ((URLDownloadToFileW(NULL, url.c_str(), filepath.c_str(), 0, NULL) )== S_OK);
-	return true;
+//	URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL);
+    return ((URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL) )== S_OK);
+}
+
+//Œ¥ µœ÷
+bool GetDataFromURL(std::wstring url)
+{
+    return false;
 }
