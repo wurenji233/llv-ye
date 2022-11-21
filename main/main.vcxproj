@@ -137,7 +137,6 @@
     <ClInclude Include="afxnet.cpp" />
     <ClInclude Include="func.h" />
     <ClInclude Include="std.h" />
-    <ClInclude Include="type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
