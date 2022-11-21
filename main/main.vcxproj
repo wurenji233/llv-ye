@@ -133,8 +133,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\launcher\hide.h" />
+    <ClInclude Include="afxnet.cpp" />
     <ClInclude Include="func.h" />
-    <ClInclude Include="hide.h" />
     <ClInclude Include="std.h" />
     <ClInclude Include="type.h" />
   </ItemGroup>
