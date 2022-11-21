@@ -15,3 +15,4 @@
 
 #pragma comment(lib, "Wininet.lib")
 #pragma comment(lib,"winmm.lib")
+#pragma comment(lib,"URLmon")
