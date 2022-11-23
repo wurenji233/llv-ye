@@ -1,7 +1,11 @@
-#pragma once
+﻿#pragma once
 
-
-#include <Windows.h>
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN
+#include <afx.h>
+#include <afxwin.h>
+#endif
+//#include <Windows.h>
 #include<tchar.h>
 #include<iostream>
 #include<fstream>

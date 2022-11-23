@@ -1,16 +1,17 @@
 #include"std.h"
-
+#define _AFXDLL
 #include<afxinet.h>
-//未实现
-std::wstring GetDataFromURL(std::wstring url)
+
+//有人看得懂吗（
+std::wstring GetDataFromURL(std::wstring url,bool iserr)
 {
     CInternetSession session;
 
     CHttpFile* file = NULL;
 
-    CString strURL = " http://www.20abcd.com";
+    CString strURL = url.c_str();
 
-    CString strHtml = "";   //存放网页数据
+    CString strHtml = _T("");   //存放网页数据
 
 
 
@@ -29,7 +30,7 @@ std::wstring GetDataFromURL(std::wstring url)
 
         session.Close();
 
-        return NULL;
+        return std::wstring();
 
     }
 
@@ -48,7 +49,7 @@ std::wstring GetDataFromURL(std::wstring url)
     }
     else {
 
-        return NULL;
+        return std::wstring();
 
     }
 
@@ -62,5 +63,5 @@ std::wstring GetDataFromURL(std::wstring url)
 
     file = NULL;
 
-    return NULL;
+    return std::wstring(strHtml);
 }

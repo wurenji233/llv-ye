@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -108,6 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>gdi32.lib user32.lib kemel32.lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,13 +129,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="winnet.cpp" />
-    <ClCompile Include="tools.cpp" />
+    <ClCompile Include="afxnet.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tools.cpp" />
+    <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\launcher\hide.h" />
-    <ClInclude Include="afxnet.cpp" />
     <ClInclude Include="func.h" />
     <ClInclude Include="std.h" />
   </ItemGroup>
