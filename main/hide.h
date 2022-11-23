@@ -1,5 +1,5 @@
-#pragma once
+ï»¿#pragma once
 
 
-
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"wmainCRTStartup\"") // ÉèÖÃÈë¿ÚµØÖ·
+// è®¾ç½®å…¥å£åœ°å€
+#pragma comment(linker, "/subsystem:\"windows\" /entry:\"wmainCRTStartup\"")
