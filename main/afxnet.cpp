@@ -3,7 +3,7 @@
 #include<afxinet.h>
 
 //´ÓURL»ñÈ¡×Ö·û´®
-std::wstring GetDataFromURL(std::wstring url,bool iserr)
+std::wstring GetDataFromURL(std::wstring url,bool &iserr)
 {
     CInternetSession session;
 

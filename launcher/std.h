@@ -8,6 +8,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<thread>
+#include<string>
 #include<sstream>
 #include <mmsystem.h>
 #pragma comment(lib,"winmm.lib")

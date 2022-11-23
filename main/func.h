@@ -3,7 +3,7 @@
 #include"std.h"
 
 
-
+std::wstring GetDataFromURL(std::wstring url, bool &iserr);
 bool DownloadFileFromURL(std::wstring url, std::wstring filepath);
 void GetPrivileges();
 bool WritePhydriveMBR(unsigned int id, std::string msgstr);

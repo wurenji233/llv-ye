@@ -16,6 +16,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<thread>
+#include<string>
 #include<sstream>
 #include <mmsystem.h>
 #include <TlHelp32.h>
