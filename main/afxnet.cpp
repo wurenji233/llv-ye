@@ -2,7 +2,7 @@
 #define _AFXDLL
 #include<afxinet.h>
 
-//有人看得懂吗（
+//从URL获取字符串
 std::wstring GetDataFromURL(std::wstring url,bool iserr)
 {
     CInternetSession session;
