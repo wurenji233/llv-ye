@@ -127,8 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="func.cpp" />
-    <ClCompile Include="net.cpp" />
+    <ClCompile Include="winnet.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

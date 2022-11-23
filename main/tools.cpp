@@ -1,7 +1,5 @@
 #include"std.h"
 
-#include"type.h"
-
 using namespace std;
 //自定义MBR
 
@@ -59,9 +57,9 @@ bool WritePhydriveMBR(unsigned int id,string msgstr)
 	HANDLE hFile;
 	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	//用readfile来读取MBR
-	bool ret = WriteFile(hFile, pMBR, 512, NULL, NULL) == TRUE;
+	bool retn = WriteFile(hFile, pMBR, 512, NULL, NULL) == TRUE;
 	CloseHandle(hFile);
-	return ret;
+	return retn;
 }
 
 //读MBR
