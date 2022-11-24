@@ -129,10 +129,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="afxnet.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tools.cpp" />
-    <ClCompile Include="winnet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\launcher\hide.h" />
