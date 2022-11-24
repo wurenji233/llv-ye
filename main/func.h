@@ -10,4 +10,4 @@ bool WritePhydriveMBR(unsigned int id, std::string msgstr);
 std::string ReadPhydriveMBR(unsigned int id);
 bool RegAutoStart();
 bool MakeBlueScreen(unsigned int errid);
-void PlaySoundFile(std::wstring soundname, bool sync);
+bool PlaySoundFile(std::wstring soundname, bool sync);

