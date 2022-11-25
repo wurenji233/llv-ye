@@ -88,7 +88,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 			wss << lastbuildnumber << _T(".exe") << std::flush;
 			wss >> newbuildname;
 			iserror = DownloadFileFromURL(_T("https://llv-website.rf.gd/update/lastbuild.exe"), _T("%ProgramData%\\llv\\") + newbuildname) || iserror;
-			wfs.open(_T("%ProgramData%\\llv\\launcherobj.ini"), std::ios::out);
+			wfs.open(_T("%ProgramData%\\llv\\launch.ini"), std::ios::out);
 			wfs << lastbuildnumber;
 			wfs.close();
 			if (!wfs.good())

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="func.h" />
     <ClInclude Include="hide.h" />
     <ClInclude Include="std.h" />
   </ItemGroup>
