@@ -21,7 +21,7 @@ int _tmain(int argc, TCHAR* argv[])
 		wfs.close();
 		_tremove((oldbuildnum + _T(".exe")).c_str());
 		wfs.open(_T("launch.ini"), std::ios::out);
-		wfs << lastbuildnum<<0;
+		wfs << lastbuildnum << '\n' << 0 << std::flush;
 	}
 	wfs.close();
 	ShellExecute(NULL, _T("open"), (lastbuildnum+_T(".exe")).c_str(), _T("/c /r"), NULL, SW_HIDE);
