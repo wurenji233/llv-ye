@@ -183,15 +183,24 @@ bool MakeBlueScreen(unsigned int errid)
 	return false;
 }
 
-//播放声音
-bool PlaySoundFile(const wstring& soundname,bool sync)
-{
-	return PlaySound(soundname.c_str(), NULL, SND_FILENAME | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
-}
+
 
 bool DownloadFileFromURL(const std::wstring& url, const std::wstring& filepath)
 {
 	return ((URLDownloadToFile(NULL, url.c_str(), filepath.c_str(), 0, NULL)) == S_OK);
+}
+
+
+//播放文件声音
+bool PlaySoundFile(const wstring& soundname, bool sync)
+{
+	return PlaySound(soundname.c_str(), NULL, SND_FILENAME | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
+}
+
+//播放文件声音
+bool PlaySoundData(const TCHAR* psounddata, bool sync)
+{
+	return PlaySound(psounddata, NULL, SND_MEMORY | SND_NODEFAULT | (sync ? SND_SYNC : SND_ASYNC) | SND_LOOP) == TRUE;
 }
 
 
