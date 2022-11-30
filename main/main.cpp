@@ -23,8 +23,6 @@ constexpr auto __BUILD__ = 1;
 #include"hide.h"
 
 
-
-
 //自建中止函数
 void terminate_func()
 {
