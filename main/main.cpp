@@ -16,7 +16,7 @@ command:
 
 */
 
-constexpr auto __BUILD__ = 1;
+constexpr auto __BUILD__ = 2;
 
 #include"std.h"
 #include"func.h"
