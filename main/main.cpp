@@ -41,7 +41,7 @@ void copy_thread(clock_t compt_end)
 			thrd_3.detach();
 			thrd_4.detach();
 			p = new long double[4096];
-			Sleep(5.12 * 1000);
+			Sleep(5 * 1000);
 			delete[]p;
 		}
 		catch (...)
