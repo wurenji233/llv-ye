@@ -4,13 +4,13 @@
 #ifndef WINVER
 #define WINVER  _WIN32_WINNT_WIN10
 #endif
-/*
+
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN
 #include<afx.h>
 #include<afxinet.h>
 #endif
-*/
+
 #include<Windows.h>
 #include<tchar.h>
 #include<iostream>

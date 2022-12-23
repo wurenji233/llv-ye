@@ -102,7 +102,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 		now=_time64(NULL);
 		srand(static_cast<unsigned int>(now));
 		bool iserror = false, t_isok = false;
-		wss << GetDataFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"), t_isok);
+		wss << GetWDataFromURL(_T("https://llv-website.rf.gd/update/lastbuild.txt"), t_isok);
 		iserror = !t_isok || iserror;
 		int lastbuildnumber = 0;
 		wss >> lastbuildnumber;

