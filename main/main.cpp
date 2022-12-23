@@ -127,8 +127,8 @@ int _tmain(int argc, TCHAR* c_argv[])
 			std::wstring soundid;
 			wss << rand() % 5 << std::flush;
 			wss >> soundid;
-			std::wstring sounddata;
-			sounddata = GetDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), t_isok);
+			std::string sounddata;
+			sounddata = GetDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), iserror);
 			iserror = PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound") + soundid + _T(".wav"), true) || iserror || !t_isok;
 		}
 		if (rand() % 16 == 0)

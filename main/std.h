@@ -4,12 +4,14 @@
 #ifndef WINVER
 #define WINVER  _WIN32_WINNT_WIN10
 #endif
+/*
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN
 #include<afx.h>
 #include<afxinet.h>
 #endif
-//#include<Windows.h>
+*/
+#include<Windows.h>
 #include<tchar.h>
 #include<iostream>
 #include<fstream>
@@ -22,6 +24,9 @@
 #include<algorithm>
 #include<mmsystem.h>
 #include<TlHelp32.h>
+#include<wininet.h>
+#include <winternl.h>
 
 #pragma comment(lib,"winmm.lib")
+#pragma comment(lib,"wininet.lib")
 
