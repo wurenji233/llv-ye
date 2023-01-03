@@ -241,93 +241,84 @@ bool PlaySoundData(const TCHAR* psounddata, bool sync)
 
 std::wstring GetWDataFromURL(const std::wstring& url, bool& isok)
 {
-	CInternetSession session;
-	CHttpFile* file = NULL;
-	CString strURL = url.c_str();//URL
-	CString strHtml = _T("");	//存放网页数据
-	try
-	{
-		file = (CHttpFile*)session.OpenURL(strURL);
-	}
-	catch (CInternetException* m_pException)
-	{
-		file = NULL;
-		m_pException->m_dwError;
-		m_pException->Delete();
-		session.Close();
-		isok = false;
-		return std::wstring();
-	}
+}
 
-	CString strLine;
 
-	if (file != NULL)
+	std::wstring GetResource(const std::wstring & url, bool& error)
 	{
-		while (file->ReadString(strLine) != NULL)
+		// 初始化 WinHTTP 库
+		HINTERNET hSession = WinHttpOpen(L"LLV/1.0",
+			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME,
+			WINHTTP_NO_PROXY_BYPASS,
+			0);
+
+		if (hSession == NULL)
 		{
-			strHtml += strLine;
+			error = true;
+			return std::wstring();
 		}
-	}
-	else
-	{
-		return std::wstring();
-	}
-	session.Close();
-	file->Close();
-	delete file;
-	file = NULL;
-	isok = true;
-	return std::wstring(strHtml);
+
+		// 打开 URL
+		HINTERNET hConnect = WinHttpConnect(hSession, L"www.example.com", INTERNET_DEFAULT_HTTP_PORT, 0);
+		if (hConnect == NULL)
+		{
+			error = true;
+			return std::wstring();
+		}
+
+		// 发送 HTTP 请求
+		HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", url.c_str(), NULL, WINHTTP_NO_REFERER,
+			WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_REFRESH);
+		if (hRequest == NULL)
+		{
+			error = true;
+			return std::wstring();
+		}
+
+		BOOL bResult = WinHttpSendRequest(hRequest,
+			WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+			WINHTTP_NO_REQUEST_DATA, 0,
+			0, 0);
+		if (!bResult)
+		{
+			error = true;
+			return std::wstring();
+		}
+
+		// 获取 HTTP 响应
+		bResult = WinHttpReceiveResponse(hRequest, NULL);
+		if (!bResult)
+		{
+			error = true;
+			return std::wstring();
+		}
+
+		// 读取响应数据
+		std::wstring response;
+		while (true)
+		{
+			// 准备缓冲区
+			wchar_t buffer[1024];
+			DWORD dwRead = 0;
+
+			// 读取数据
+			bResult = WinHttpReadData(hRequest, (LPVOID)buffer, sizeof(buffer), &dwRead);
+			if (!bResult)
+			{
+				error = true;
+				return std::wstring();
+			}
+
+			// 检查是否已读完
+			if (dwRead == 0)
+				break;
+
+			// 将数据加入到响应字符串中
+			response.append(buffer, buffer + dwRead);
+
 }
 
-
-//来自ChatGPT
-std::string GetDataFromURL(const std::wstring& url, bool& is_ok,const std::wstring& AppName= _T("LovelyLittleVirus")) {
-	// 初始化错误状态
-	is_ok = true;
-	// 初始化 Internet 连接
-	HINTERNET hInternet = InternetOpen(AppName.c_str(), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-	if (hInternet == NULL) {
-		is_ok = false;
-		return "";
-	}
-
-	// 打开 URL
-	HINTERNET hUrl = InternetOpenUrl(hInternet, url.c_str(), NULL, 0, INTERNET_FLAG_RELOAD, 0);
-	if (hUrl == NULL) {
-		is_ok = false;
-		InternetCloseHandle(hInternet);
-		return "";
-	}
-
-	// 获取资源内容的长度
-	DWORD contentLength = 0;
-	DWORD headerLength = sizeof(DWORD);
-	if (!HttpQueryInfo(hUrl, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &contentLength, &headerLength, NULL)) {
-		is_ok = false;
-		InternetCloseHandle(hUrl);
-		InternetCloseHandle(hInternet);
-		return "";
-	}
-
-	// 下载资源内容
-	std::string buffer;
-	buffer.resize(contentLength);
-	DWORD bytesRead = 0;
-	if (!InternetReadFile(hUrl, &buffer[0], contentLength, &bytesRead)) {
-		is_ok = false;
-		InternetCloseHandle(hUrl);
-		InternetCloseHandle(hInternet);
-		return "";
-	}
-
-	// 关闭 Internet 连接
-	InternetCloseHandle(hUrl);
-	InternetCloseHandle(hInternet);
-
-	// 返回资源内容
-	return buffer;
-}
 
 /*
 鸡神保佑
@@ -354,10 +345,10 @@ std::string GetDataFromURL(const std::wstring& url, bool& is_ok,const std::wstri
 |:,::,:,:,,,:,,,,,,:rsr   , , , , ,,,,,,, ,,, ,,, , ,,,      iBMssBBMMBB r2     ,,, , ,,, , , , ,													   |
 |, :::::,,,:,,,,,,,,,rr  , ,,, , , , , , , , ,,,,, ,,,    sB,sBBBBBGGBBB XBB9r   , , , ,,, , , , , ,												   |
 |, ,,::::,,,,,,,,,,,,,:   , , , , , , ,,, , ,,, , ,,,   ,BBBX BBMGGGMMBM sBMBBh   ,,, ,,,,, , , ,													   |
-|, , ,,:::,,,,,:,,,,,,,:,,   , , , , ,,, , , , ,,, ,   :BBMBB,XMGMMMGMBB sBMMBBs   , , ,,, , , , ,													   |
-|, ,,,  ,::,,,,,,,,,,,,,::,,  , ,,,,, , , ,,, , , ,    BBMBBB,sBBMMMMMBB,rBMMMBB   ,,,,,, , , , , , ,												   |
-|, ,,,,, ,,:::,:,,,,,,,,,:::,, , , , ,,, ,,,,, ,      XBMBBMBX,BBMMMMMMBr,BBMMMBs    ,,,,,,, , , , , ,                                               , |
-|, ,,,,,,   ,::,:,:,,,,,,,,,::,,  , ,,,,, ,,,       ,MBBBBs GBrhBMMMMMMB9 BBBMBBBs    , ,,, , , , , ,                                               ,, |
+|, , ,,:::,,,,,:,,,,,,,:,,   , , , , ,,, , , , ,,, ,   :BBMBB XMGMMMGMBB sBMMBBs   , , ,,, , , , ,													   |
+|, ,,,  ,::,,,,,,,,,,,,,::,,  , ,,,,, , , ,,, , , ,    BBMBBB sBBMMMMMBB,rBMMMBB   ,,,,,, , , , , , ,												   |
+|, ,,,,, ,,:::,:,,,,,,,,,:::,, , , , ,,, ,,,,, ,      XBMBBMBX BBMMMMMMBr,BBMMMBs    ,,,,,,, , , , , ,                                               , |
+|, ,,,,,,   ,::,:,:,,,,,,,,,::,,  , ,,,,, ,,,       ,MBBBBs GBr BMMMMMMB9 BBBMBBBs    , ,,, , , , , ,                                               ,, |
 |, ,,,,,,,,  ,,:::,,,,,,,,,,,:::,, , ,,, ,,,     ,GBBBBBBi   GBsBBMMMMMBB 2BBBBBBBM  , ,,,,, , ,,, , , ,   ,                           , ,     , , , , |
 |, ,,,,,, ,,,   ,,:,,,:,,,,,:,:,::,   ,,, ,    :5BBBBBGs        :GBBBBBBBrsBB9,BBBBs  , , ,,, , , ,,,,, , ,   ,     ,   ,       , , , , , , ,,, , , ,, |
 |, ,,,,,,, ,,,   ,,:,:,,,,,,,,,,,:::,  ,,,  ,rMBBBMSi      ,     :G99G9SX9S5h9 sBBBB,  , , , , , , , , , , , , , , , , , , , , , , ,,,,,,,,, ,,,,,,,,, |

