@@ -136,6 +136,7 @@
     <ClInclude Include="..\launcher\hide.h" />
     <ClInclude Include="func.h" />
     <ClInclude Include="std.h" />
+    <ClInclude Include="with_err.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
