@@ -134,7 +134,14 @@
   <ItemGroup>
     <ClInclude Include="func.h" />
     <ClInclude Include="hide.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="std.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Users\wuwenxuan\Desktop\dir.ICO" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
