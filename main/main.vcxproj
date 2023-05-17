@@ -128,7 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="func.cpp" />
-    <ClCompile Include="net.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -136,7 +135,6 @@
     <ClInclude Include="func.h" />
     <ClInclude Include="hide.h" />
     <ClInclude Include="std.h" />
-    <ClInclude Include="type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

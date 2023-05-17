@@ -1,14 +1,8 @@
 #include"std.h"
 
-#include"type.h"
 
 using namespace std;
 //自定义MBR
-
-
-
-
-
 void GetPrivileges()
 {
 	//定义一个PLUID
@@ -123,7 +117,8 @@ void MakeBlueScreen(unsigned int errid)
 }
 
 
-void PlaySoundFile(wstring soundname,bool sync)
+//播放声音
+inline void PlaySoundFile(wstring soundname,bool sync)
 {
 	PlaySound(soundname.c_str(), NULL, SND_FILENAME | (sync? SND_SYNC :SND_ASYNC) | SND_LOOP);
 }

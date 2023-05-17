@@ -10,9 +10,7 @@
 #include<thread>
 #include<sstream>
 #include <mmsystem.h>
-#include<wininet.h>
 #include <TlHelp32.h>
 
-#pragma comment(lib, "Wininet.lib")
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"URLmon")
